@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zombie Apocalypse: The Escape</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #1a1a1a, #000);
+        }
+
+        .scene {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        .element {
+            position: absolute;
+            transition: all 1s ease-in-out;
+            opacity: 0;
+        }
+
+        .players { font-size: 4em; bottom: 10%; }
+        .zombies { font-size: 4em; top: -20%; }
+        .car { font-size: 5em; bottom: -20%; }
+        .wall { font-size: 6em; right: -20%; }
+        .portal { font-size: 7em; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); }
+        .bell { font-size: 4em; top: 10%; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        #narration {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            text-align: center;
+            width: 80%;
+            opacity: 0;
+            transition: opacity 0.5s;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+
+        .title {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Creepster', cursive;
+            font-size: 4em;
+            text-align: center;
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+
+        .blood-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="rgba(255,0,0,0.1)"/><circle cx="50%" cy="50%" r="40%" fill="none" stroke="rgba(255,0,0,0.2)" stroke-width="20"/></svg>');
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="blood-overlay"></div>
+        <h1 class="title">Zombie Apocalypse: The Escape</h1>
+        <div class="scene">
+            <div class="element players">👫</div>
+            <div class="element zombies">🧟‍♂️🧟‍♀️🧟‍♂️</div>
+            <div class="element car">🚗</div>
+            <div class="element wall">🧱</div>
+            <div class="element portal">🌀</div>
+            <div class="element bell">🔔</div>
+            <div id="narration"></div>
+        </div>
+    </div>
+
+    <script>
+        const narration = document.getElementById('narration');
+        const elements = document.querySelectorAll('.element');
+
+        const story = [
+            { text: "Two survivors trapped in a mall", duration: 3000, show: ['players'] },
+            { text: "Suddenly, zombies appear!", duration: 3000, show: ['zombies'], animate: { zombies: { top: '20%', opacity: 1 } } },
+            { text: "The survivors dash to a car", duration: 3000, show: ['car'], animate: { players: { bottom: '-20%', opacity: 0 }, car: { bottom: '10%', opacity: 1 } } },
+            { text: "They encounter a massive wall", duration: 3000, show: ['wall'], animate: { wall: { right: '10%', opacity: 1 } } },
+            { text: "A mysterious portal materializes", duration: 3000, show: ['portal'], animate: { portal: { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 } } },
+            { text: "A haunting bell chimes, summoning all zombies!", duration: 3000, show: ['bell'], animate: { bell: { opacity: 1 }, zombies: { top: '40%' } } },
+            { text: "The desperate escape begins...", duration: 3000, animate: { car: { left: '-20%' }, zombies: { left: '-20%' } } }
+        ];
+
+        function animateElement(element, properties) {
+            Object.entries(properties).forEach(([key, value]) => {
+                element.style[key] = value;
+            });
+        }
+
+        async function playIntro() {
+            for (const scene of story) {
+                narration.textContent = scene.text;
+                narration.style.opacity = 1;
+
+                if (scene.show) {
+                    scene.show.forEach(className => {
+                        const element = document.querySelector(`.${className}`);
+                        element.style.opacity = 1;
+                    });
+                }
+
+                if (scene.animate) {
+                    Object.entries(scene.animate).forEach(([className, properties]) => {
+                        const element = document.querySelector(`.${className}`);
+                        animateElement(element, properties);
+                    });
+                }
+
+                await new Promise(resolve => setTimeout(resolve, scene.duration));
+                narration.style.opacity = 0;
+            }
+        }
+
+        playIntro();
+    </script>
+</body>
+</html>
